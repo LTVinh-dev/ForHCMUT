@@ -14,5 +14,5 @@ int main()
     }
     cout << setprecision(2) << fixed << (sum*1.0/N);
     return 0;
-    
+    //a
 }
