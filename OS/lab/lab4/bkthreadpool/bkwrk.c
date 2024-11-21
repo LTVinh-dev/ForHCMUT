@@ -114,8 +114,12 @@ int bkwrk_get_worker() {
    * The return value is the ID of the worker which is not currently 
    * busy or wrkid_busy[1] == 0 
    */
-
-  return 0;
+   for (int i = 1; i < MAX_WORKER; i++){
+	if (wrkid_busy[i] == 0){
+	return i;
+	}
+   }
+   return 0;
 }
 
 int bkwrk_dispatch_worker(unsigned int wrkid) {
@@ -137,3 +141,4 @@ int bkwrk_dispatch_worker(unsigned int wrkid) {
 
 #endif
 }
+
