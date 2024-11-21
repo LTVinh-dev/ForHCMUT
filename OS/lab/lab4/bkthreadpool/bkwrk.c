@@ -115,10 +115,10 @@ int bkwrk_get_worker() {
    * busy or wrkid_busy[1] == 0 
    */
    for (int i = 1; i < MAX_WORKER; i++){
-	if (wrkid_busy[i] == 0){
-	return i;
-	}
-   }
+	    if (wrkid_busy[i] == 0){
+	    return i;
+	    }
+    }  
    return 0;
 }
 
