@@ -3,7 +3,7 @@
 mkfifo usrfifo
 read(){
     i=0
-    cat < usrfifo
+    cat usrfifo
 }
 write(){
     i=0
