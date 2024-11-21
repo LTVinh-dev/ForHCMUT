@@ -3,10 +3,12 @@
 mkfifo usrfifo
 read(){
     i=0
+    echo "reading"
     cat usrfifo
 }
 write(){
     i=0
+    echo "writing"
     echo "$str"
     echo "$str" > usrfifo
     
@@ -24,11 +26,8 @@ do
         if [ "$cmd" != "$w" ]
         then
             echo "wrong syntax"
-            echo "[ $cmd -ne $r ]"
             i=0
-        elif [ "$cmd" == "$r" ]
-        then
-            read
+        
         elif [ "$cmd" == "$w" ]
         then
             str=$2
@@ -41,5 +40,7 @@ do
             
             fi
         fi
+    else
+        read
     fi
 done
