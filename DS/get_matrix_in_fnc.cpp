@@ -1,4 +1,4 @@
-string BF_Path(int graph[30][30], int numV, char startV, char endV) {
+void BF(int graph[30][30], int numV, char startV, int value[], int preV[]) {
 
     for (int u = 0; u < numV; u++) { //quét đầy đủ tất cả hàng, cột trong ma trận đồ thị
         for (int v = 0; v < numV; v++) {
@@ -7,6 +7,6 @@ string BF_Path(int graph[30][30], int numV, char startV, char endV) {
         cout << endl;
     }
     cout << endl;
-    BF(graph, 8, 1, 1, 1);
-    return "A";
+    //BF(graph, 8, 1, 1, 1);
+    //return "A";
 }
