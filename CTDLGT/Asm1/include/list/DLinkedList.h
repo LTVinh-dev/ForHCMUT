@@ -513,28 +513,28 @@ string DLinkedList<T>::toString(string (*item2str)(T &))
      */
     // TODO
     ostringstream oss;
-    oss << "[";
+    oss << "["; // open the list
 
-    Node *current = this->head->next; // Bắt đầu từ phần tử đầu tiên (bỏ qua head)
-    while (current != this->tail)     // Duyệt đến trước tail
+    Node *current = this->head->next; // skip head
+    while (current != this->tail)     // no reaching tail
     {
         if (item2str != nullptr)
         {
-            oss << item2str(current->data); // Sử dụng hàm chuyển đổi nếu được cung cấp
+            oss << item2str(current->data); // try custom function
         }
         else
         {
-            oss << current->data; // Sử dụng toán tử << nếu kiểu T hỗ trợ
+            oss << current->data; // use << operator
         }
 
         current = current->next;
         if (current != this->tail)
         {
-            oss << ", "; // Thêm dấu phẩy giữa các phần tử
+            oss << ", "; // add comma if not at the end
         }
     }
 
-    oss << "]";
+    oss << "]"; // close the list
     return oss.str();
 }
 
