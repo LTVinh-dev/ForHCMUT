@@ -359,10 +359,11 @@ template <class T>
 DLinkedList<T>::~DLinkedList()
 {
     // TODO
-    if (this->deleteUserData != 0)
-        this->deleteUserData(this);
+    removeInternalData();
     delete this->head;
     delete this->tail;
+    if (this->deleteUserData != 0)
+        this->deleteUserData(this);
 }
 
 template <class T>
@@ -512,30 +513,31 @@ string DLinkedList<T>::toString(string (*item2str)(T &))
      * @return A string representation of the list with elements separated by commas and enclosed in square brackets.
      */
     // TODO
-    ostringstream oss;
-    oss << "[";
-
-    Node *current = this->head->next; // Bắt đầu từ phần tử đầu tiên (bỏ qua head)
-    while (current != this->tail)     // Duyệt đến trước tail
+    string result = "[";
+    Node *pNode = this->head->next;
+    while (pNode != this->tail)
     {
-        if (item2str != nullptr)
+        if (item2str == 0)
         {
-            oss << item2str(current->data); // Sử dụng hàm chuyển đổi nếu được cung cấp
+            // Trường hợp không có hàm chuyển đổi tùy chỉnh nào được cung cấp, hãy thử sử dụng toán tử <<.
+            try {
+                std::ostringstream oss;
+                oss << pNode->data; // Thử sử dụng toán tử <<
+                result += oss.str();
+            }
+            catch (const std::exception& e) {
+                result += "Kiểu không thể chuyển đổi"; // Xử lý nếu T không có toán tử <<.
+            }
+
         }
         else
-        {
-            oss << current->data; // Sử dụng toán tử << nếu kiểu T hỗ trợ
-        }
-
-        current = current->next;
-        if (current != this->tail)
-        {
-            oss << ", "; // Thêm dấu phẩy giữa các phần tử
-        }
+            result += item2str(pNode->data);
+        if (pNode->next != this->tail)
+            result += ", ";
+        pNode = pNode->next;
     }
-
-    oss << "]";
-    return oss.str();
+    result += "]";
+    return result;
 }
 
 template <class T>

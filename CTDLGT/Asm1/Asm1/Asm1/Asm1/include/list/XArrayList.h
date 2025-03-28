@@ -184,12 +184,10 @@ XArrayList<T>::XArrayList(
 {
     // TODO
     this->capacity = (capacity > 0) ? capacity : 10;
+    this->count = 0;
+    this->data = new T[this->capacity];
     this->deleteUserData = deleteUserData;
     this->itemEqual = itemEqual;
-    this->count = 0;
-    this->data = new T[capacity];
-    if (this->data == 0)
-        throw std::bad_alloc();
 }
 
 template <class T>
@@ -264,9 +262,9 @@ void XArrayList<T>::add(T e)
 template <class T>
 void XArrayList<T>::add(int index, T e)
 {
-    // TODO 
-    ensureCapacity(count+1);
+    // TODO
     checkIndex(index);
+    ensureCapacity(count);
     for (int i = count; i > index; --i)
         data[i] = data[i - 1];
     data[index] = e;
@@ -358,19 +356,31 @@ string XArrayList<T>::toString(string (*item2str)(T &))
      */
 
     // TODO
-    stringstream ss;
-    ss << "[";
-    for (int i = 0; i < count; ++i)
+    string result = "[";
+    Node *pNode = this->head->next;
+    while (pNode != this->tail)
     {
-        if (i > 0)
-            ss << ", ";
-        if (item2str != 0)
-            ss << item2str(data[i]);
+        if (item2str == 0)
+        {
+            // Trường hợp không có hàm chuyển đổi tùy chỉnh nào được cung cấp, hãy thử sử dụng toán tử <<.
+            try {
+                std::ostringstream oss;
+                oss << pNode->data; // Thử sử dụng toán tử <<
+                result += oss.str();
+            }
+            catch (const std::exception& e) {
+                result += "Kiểu không thể chuyển đổi"; // Xử lý nếu T không có toán tử <<.
+            }
+
+        }
         else
-            ss << data[i];
+            result += item2str(pNode->data);
+        if (pNode->next != this->tail)
+            result += ", ";
+        pNode = pNode->next;
     }
-    ss << "]";
-    return ss.str();
+    result += "]";
+    return result;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -385,8 +395,8 @@ void XArrayList<T>::checkIndex(int index)
      * Ensures safe access to the list's elements by preventing invalid index operations.
      */
     // TODO
-    if (index < 0 || index > count)
-        throw std::out_of_range("Index out of range");
+    if (index < 0 || index >= count)
+        throw std::out_of_range("Index out of bounds");
 }
 template <class T>
 void XArrayList<T>::ensureCapacity(int index)
@@ -400,13 +410,14 @@ void XArrayList<T>::ensureCapacity(int index)
     // TODO
     if (index >= capacity)
     {
-        capacity = (int) capacity * 1.5;
+        int newCapacity = capacity * 2;
         try {
-            T *newData = new T[capacity];
+            T *newData = new T[newCapacity];
             for (int i = 0; i < count; ++i)
                 newData[i] = data[i];
             delete[] data;
             data = newData;
+            capacity = newCapacity;
         }
         catch (const std::bad_alloc& e) {
             throw;

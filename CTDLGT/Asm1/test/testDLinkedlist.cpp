@@ -1,16 +1,216 @@
-/*
- * File:   DLinkedList.h
- */
-
-#ifndef DLINKEDLIST_H
-#define DLINKEDLIST_H
-
-#include "list/IList.h"
-
 #include <sstream>
 #include <iostream>
 #include <type_traits>
+#include <iomanip>
+#include <sstream>
+#include <string>
+#include <math.h>
+#include <random>
 using namespace std;
+
+#define EPSILON (1E-8)
+
+class Point{
+private:
+    float x, y, z;
+    friend ostream &operator<<( ostream &os, const Point& point);
+    
+public:
+    Point(float x=0.0f, float y=0.0f, float z=0.0f){
+        this->x = x;
+        this->y = y;
+        this->z = z;
+    }
+    Point(const Point& point){
+        this->x = point.x;
+        this->y = point.y;
+        this->z = point.z;
+    }
+    
+    void setZ(float z) {
+        this->z = z;
+    }
+
+    float getZ() const {
+        return z;
+    }
+    
+    void setY(float y) {
+        this->y = y;
+    }
+
+    float getY() const {
+        return y;
+    }
+
+    void setX(float x) {
+        this->x = x;
+    }
+
+    float getX() const {
+        return x;
+    }
+    float radius(){
+        return sqrt(x*x + y*y + z*z);
+    }
+
+    //with point object
+    bool operator==(Point rhs){
+        return  (abs(this->x - rhs.x) < EPSILON) &&
+                (abs(this->y - rhs.y) < EPSILON) &&
+                (abs(this->z - rhs.z) < EPSILON);
+    }
+    
+    //with pointer to point
+    static bool pointEQ(Point& lhs, Point& rhs){
+        return  lhs == rhs;
+    }
+    //with pointer to point
+    static bool pointEQ(Point*& lhs, Point*& rhs){
+        return  *lhs == *rhs;
+    }
+    
+    static string point2str(Point& point){
+        stringstream os;
+        os  << point;
+        return os.str();
+    }
+    static string point2str(Point*& point){
+        return point2str(*point);
+    }
+
+    operator float(){
+        return sqrt(x*x + y*y + z*z);
+    }
+     
+    static Point* genPoints(int size, float minValue=0, float maxValue=1, 
+                            bool manualSeed=false, int seedValue=0){
+        
+        Point* head = new Point[size];
+        
+        std::default_random_engine* engine;
+        if(manualSeed)
+            engine = new std::default_random_engine(static_cast<long unsigned int>(seedValue));
+        else
+            engine = new std::default_random_engine(static_cast<long unsigned int>(time(0)));
+        uniform_real_distribution<double> dist(minValue, maxValue);
+        
+        //
+        for(int idx=0; idx < size; idx++){
+            float x = dist(*engine);
+            float y = dist(*engine);
+            float z = dist(*engine);
+            head[idx] = Point(x,y,z);
+        }
+        delete engine;
+        return head;
+    }
+    static void println(Point* head, int size){
+        stringstream os;
+        os << "[";
+        for(int idx=0; idx < size-1; idx++)
+            os << head[idx] << ", ";
+        if(size > 0) os << head[size-1] << "]";
+        else os << "]";
+        cout << os.str() << endl;
+        return;
+    }
+   
+};
+ostream &operator<<( ostream &os, const Point& point){
+    os << "P(" << fixed 
+            << setw(6) << setprecision(2) << point.x << "," 
+            << setw(6) << setprecision(2) << point.y << ","
+            << setw(6) << setprecision(2) << point.z
+       << ")";
+    return os;
+}
+
+template<class T>
+class IList{
+public:
+    virtual ~IList(){};
+    /* add(T e): append item "e" to the list
+     */
+    virtual void    add(T e)=0;
+    
+    
+    
+    /* add(int index, T e): insert item "e" at location "index";
+     *      location is an integer started from 0
+     */
+    virtual void    add(int index, T e)=0;
+    
+    
+    
+    /* removeAt(int index): remove the item at location "index"
+     * 
+     * return:
+     *  >> the item stored at index
+     *  >> throw an exception (std::out_of_range) if index is invalid
+     */
+    virtual T       removeAt(int index)=0;
+    
+    
+    /* removeItem(T item, void (*removeItemData)(T)=0): remove item stored in the list
+     *   >> removeItemData: a function pointer (maybe NULL, default),
+     *          that will be called inside of removeItem to delete the item's data stored in the list
+     *   >> removeItemData, why need? because we DO NOT type T is a pointer or not.
+     * 
+     * return:
+     *   >> true if "item" stored in the list; 
+     *   >> otherwise, return false
+     */
+    virtual bool    removeItem(T item, void (*removeItemData)(T)=0)=0;
+    
+    
+    
+    /* empty(): return true if the list is empty; otherwise, return false
+     */
+    virtual bool    empty()=0;
+    
+    
+    
+    /* size(): return number of items stored in the list
+     */
+    virtual int     size()=0;
+    
+    
+    
+    /* clear(): make the list empty by clearing all data and putting the list to the initial condition
+     */
+    virtual void    clear()=0;
+    
+    
+    
+    /* get(int index): return a reference to the item at location "index"
+     *      if index is invalid, this function will throw an exception "std::out_of_range"
+     * 
+     * NOTE: programmers can change the item returned by this function
+     */
+    virtual T&      get(int index)=0;
+    
+    
+    /* indexOf(T item): return the index of item
+     *      if item is not found, then return -1
+     */
+    virtual int     indexOf(T item)=0;
+    
+    
+    
+    /* contains(T item): return true if the list contains "item", else: return false
+     */
+    virtual bool    contains(T item)=0;
+    
+    
+    
+    /* toString(string (*item2str)(T&)=0 ): return a string describing the list.
+     *    >> We do not know the item type, so we do not know how to convert each item to string.
+     *       Therefore, we need a pointer to a function
+     *          that can convert the item (passed to that function) to a string
+     */
+    virtual string  toString(string (*item2str)(T&)=0 )=0;
+};
 
 template <class T>
 class DLinkedList : public IList<T>
@@ -573,4 +773,113 @@ void DLinkedList<T>::removeInternalData()
     }
 }
 
-#endif /* DLINKEDLIST_H */
+
+void dlistDemo1(){
+    List<int> dlist;
+    for(int i = 0; i< 20 ; i++)
+        dlist.add(i, i*i);
+    dlist.println();
+
+    for(List<int>::Iterator it=dlist.begin(); it != dlist.end(); it++ )
+        cout << *it << " ";
+    cout << endl;
+}
+void dlistDemo5(){
+    DLinkedList<float> dList;
+    dList.add(3.2);
+    dList.add(5.5);
+    dList.println();
+    cout << "index of 5.5: " << dList.indexOf(5.5) << endl;
+    cout << "index of 15.5: " << dList.indexOf(15.5) << endl;
+}
+void dlistDemo6(){
+    List<int> list;
+    for(int i = 0; i< 10 ; i++)
+        list.add(i, i*i);
+
+    cout << setw(25) << left << "Original list: ";
+    list.println();
+
+    //
+    int& item = list.get(5);
+    item = 999;
+    cout << setw(25) << left << "After changing an item: ";
+    list.println();
+}
+
+void dlistDemo2(){
+    DLinkedList<Point*> list1(&DLinkedList<Point*>::free, &Point::pointEQ);
+    list1.add(new Point(23.2f, 25.4f));
+    list1.add(new Point(24.6f, 23.1f));
+    list1.add(new Point(12.5f, 22.3f));
+
+    for(DLinkedList<Point*>::Iterator it = list1.begin(); it != list1.end(); it++)
+        cout << **it << endl;
+
+    Point* p1 = new Point(24.6f, 23.1f); //found in list
+    Point* p2 = new Point(124.6f, 23.1f); //not found
+    cout << *p1 << "=> " << (list1.contains(p1)? "found; " : "not found; ")
+                << " indexOf returns: " << list1.indexOf(p1) << endl;
+    cout << *p2 << "=> " << (list1.contains(p2)? "found; " : "not found; ")
+                << " indexOf returns: " << list1.indexOf(p2) << endl;
+
+    ///Different results if not pass &Point::equals
+    cout << endl << endl;
+    DLinkedList<Point*> list2(&DLinkedList<Point*>::free);
+    list2.add(new Point(23.2f, 25.4f));
+    list2.add(new Point(24.6f, 23.1f));
+    list2.add(new Point(12.5f, 22.3f));
+
+    for(DLinkedList<Point*>::Iterator it = list2.begin(); it != list2.end(); it++)
+        cout << **it << endl;
+
+    cout << *p1 << "=> " << (list2.contains(p1)? "found; " : "not found; ")
+                << " indexOf returns: " << list2.indexOf(p1) << endl;
+    cout << *p2 << "=> " << (list2.contains(p2)? "found; " : "not found; ")
+                << " indexOf returns: " << list2.indexOf(p2) << endl;
+
+    delete p1; delete p2;
+}
+
+void dlistDemo3(){
+    DLinkedList<Point> dList;
+    dList.add(Point(1.5, 3.5));
+    dList.add(Point(2.5, 4.5));
+    dList.add(Point(1.6, 3.1));
+
+    cout << "test for indexOf: " << endl;
+    Point p(1.6, 3.1);
+    cout << p << " at: " << dList.indexOf(p);
+}
+bool pointComparator(Point*& p1, Point*& p2){
+    return (p1->getX() == p2->getX()) && (p1->getY() == p2->getY());
+}
+string LpointPtr2Str(Point*& ptr){
+    stringstream os;
+    os << "("   << ptr->getX() << ", "
+                << ptr->getY()
+       << ")";
+    return os.str();
+}
+
+void dlistDemo4(){
+    DLinkedList<Point*> dList(&DLinkedList<Point*>::free, &pointComparator);
+    dList.add(new Point(1.5, 3.5));
+    dList.add(new Point(2.5, 4.5));
+    dList.add(new Point(1.6, 3.1));
+    dList.println(&LpointPtr2Str);
+
+    cout << "test for indexOf: " << endl;
+    Point* p = new Point(1.6, 3.1);
+    cout << *p << " at: " << dList.indexOf(p) << endl;
+    delete p;
+}
+
+int main(int argc, char **argv)
+{
+    // cout << "Assignment-1" << endl;
+    dlistDemo4();
+    return 0;
+}
+
+//Passed sample test cases
