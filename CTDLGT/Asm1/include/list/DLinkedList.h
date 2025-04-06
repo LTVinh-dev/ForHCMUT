@@ -513,28 +513,35 @@ string DLinkedList<T>::toString(string (*item2str)(T &))
      */
     // TODO
     ostringstream oss;
-    oss << "["; // open the list
+    oss << "["; // mở danh sách
 
-    Node *current = this->head->next; // skip head
-    while (current != this->tail)     // no reaching tail
+    Node *current = this->head->next; // bỏ qua head
+    while (current != this->tail)     // không vượt qua tail
     {
         if (item2str != nullptr)
         {
-            oss << item2str(current->data); // try custom function
+            oss << item2str(current->data); // sử dụng hàm chuyển đổi tùy chỉnh
         }
         else
         {
-            oss << current->data; // use << operator
+            // if (std::is_same<T, InventoryAttribute>::value)
+            // {
+            //     oss << current->data.toString(); // gọi toString() của InventoryAttribute
+            // }
+            // else
+            // {
+                oss << current->data; // sử dụng toán tử <<
+            // }
         }
 
         current = current->next;
         if (current != this->tail)
         {
-            oss << ", "; // add comma if not at the end
+            oss << ", "; // thêm dấu phẩy nếu không phải phần tử cuối
         }
     }
 
-    oss << "]"; // close the list
+    oss << "]"; // đóng danh sách
     return oss.str();
 }
 

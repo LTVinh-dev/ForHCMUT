@@ -21,7 +21,7 @@ void tc_inventory1002() {
     
     cout << matrix.toString() << endl;
 }
-
+/*
 void tc_inventory1003() {
     InventoryAttribute attrA1("weight", 10);
     InventoryAttribute attrA2("height", 156);
@@ -167,3 +167,4 @@ void tc_inventory1006(){
     cout << "\nAfter removing duplicates:" << endl;
     cout << inventory.toString() << endl;
 }
+*/

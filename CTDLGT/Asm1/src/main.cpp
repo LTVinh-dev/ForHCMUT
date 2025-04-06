@@ -9,15 +9,12 @@
 using namespace std;
 
 
-
-
-
 int main(int argc, char **argv)
 {
     // cout << "Assignment-1" << endl;
     if (argc == 1) {
-        dlistDemo1();
+        tc_inventory1002();
     }
-    
+    cout << "aaaaaaa";
     return 0;
 }
